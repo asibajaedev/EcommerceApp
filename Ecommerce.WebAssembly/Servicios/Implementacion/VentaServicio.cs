@@ -14,7 +14,7 @@ namespace Ecommerce.WebAssembly.Servicios.Implementacion
 
         public async Task<ResponseDTO<VentaDTO>> Registrar(VentaDTO modelo)
         {
-            var response = await _httpClient.PostAsJsonAsync("Venta/Registar", modelo);
+            var response = await _httpClient.PostAsJsonAsync("Venta/Registrar", modelo);
             var result = await response.Content.ReadFromJsonAsync<ResponseDTO<VentaDTO>>();
 
             return result!;
