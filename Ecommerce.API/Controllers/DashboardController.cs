@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Ecommerce.Servicio.Contrato;
 using Ecommerce.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.API.Controllers
 {
@@ -17,6 +18,7 @@ namespace Ecommerce.API.Controllers
             _dashboardServicio = dashboardServicio;
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("Resumen")]
         public IActionResult Resumen()
         {

@@ -13,11 +13,17 @@ using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components.Authorization;
 using Ecommerce.WebAssembly.Extensiones;
 
+using Microsoft.Extensions.Http;
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5197/api/") });
+builder.Services.AddTransient<TokenHandler>();
+builder.Services.AddHttpClient("API", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5197/api/");
+}).AddHttpMessageHandler<TokenHandler>();
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();

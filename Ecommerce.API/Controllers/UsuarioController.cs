@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Ecommerce.Servicio.Contrato;
 using Ecommerce.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ecommerce.API.Controllers
 {
@@ -17,6 +18,7 @@ namespace Ecommerce.API.Controllers
             _usuarioServicio = usuarioServicio;
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("Lista/{rol:alpha}/{buscar:alpha?}")]
         public async Task<IActionResult> Lista(string rol, string buscar = "NA")
         {
@@ -38,6 +40,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("Obtener/{id:int}")]
         public async Task<IActionResult> Obtener(int id)
         {
@@ -57,6 +60,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost("Crear")]
         public async Task<IActionResult> Crear([FromBody]UsuarioDTO modelo)
         {
@@ -76,6 +80,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [AllowAnonymous]
         [HttpPost("Autorizacion")]
         public async Task<IActionResult> Autorizacion([FromBody] LoginDTO modelo)
         {
@@ -95,6 +100,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("Editar")]
         public async Task<IActionResult> Editar([FromBody] UsuarioDTO modelo)
         {
@@ -114,6 +120,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpDelete("Eliminar/{id:int}")]
         public async Task<IActionResult> Editar(int id)
         {

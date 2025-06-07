@@ -9,6 +9,11 @@ using Ecommerce.DTO;
 using Ecommerce.Repositorio.Contrato;
 using Ecommerce.Servicio.Contrato;
 using AutoMapper;
+using System.Security.Claims;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+
 
 namespace Ecommerce.Servicio.Implementacion
 {
@@ -16,11 +21,13 @@ namespace Ecommerce.Servicio.Implementacion
     {
         private readonly IGenericoRepositorio<Usuario> _modeloRepositorio;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public UsuarioServicio(IGenericoRepositorio<Usuario> modeloRepositorio, IMapper mapper)
+        public UsuarioServicio(IGenericoRepositorio<Usuario> modeloRepositorio, IMapper mapper, IConfiguration configuration)
         {
             _modeloRepositorio = modeloRepositorio;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public async Task<SesionDTO> Autorizacion(LoginDTO modelo)
@@ -31,7 +38,30 @@ namespace Ecommerce.Servicio.Implementacion
                 var fromDbModelo = await consulta.FirstOrDefaultAsync();
 
                 if (fromDbModelo != null)
-                    return _mapper.Map<SesionDTO>(fromDbModelo);
+                {
+                    var claims = new[]
+                    {
+                        new Claim(ClaimTypes.Name, fromDbModelo.NombreCompleto),
+                        new Claim(ClaimTypes.Role, fromDbModelo.Rol)
+                    };
+
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                    var token = new JwtSecurityToken(
+                        issuer: _configuration["Jwt:Issuer"],
+                        audience: _configuration["Jwt:Audience"],
+                        claims: claims,
+                        expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"])),
+                        signingCredentials: creds
+                    );
+
+                    var sesion = _mapper.Map<SesionDTO>(fromDbModelo);
+                    sesion.Token = new JwtSecurityTokenHandler().WriteToken(token);
+
+                    return sesion;
+                }
+                    
                 else
                     throw new TaskCanceledException("No se encontraron coincidencias");
             }

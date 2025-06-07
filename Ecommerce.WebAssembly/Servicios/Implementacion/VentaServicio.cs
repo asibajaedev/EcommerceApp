@@ -7,9 +7,9 @@ namespace Ecommerce.WebAssembly.Servicios.Implementacion
     public class VentaServicio : IVentaServicio
     {
         private readonly HttpClient _httpClient;
-        public VentaServicio(HttpClient httpClient)
+        public VentaServicio(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = clientFactory.CreateClient("API");
         }
 
         public async Task<ResponseDTO<VentaDTO>> Registrar(VentaDTO modelo)
