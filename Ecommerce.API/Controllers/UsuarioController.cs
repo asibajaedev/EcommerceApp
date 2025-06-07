@@ -60,7 +60,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "Administrador")]
+        [AllowAnonymous]
         [HttpPost("Crear")]
         public async Task<IActionResult> Crear([FromBody]UsuarioDTO modelo)
         {

@@ -11,6 +11,8 @@ public partial class Usuario
 
     public string? Correo { get; set; }
 
+    public string? Salt { get; set; }
+
     public string? Clave { get; set; }
 
     public string? Rol { get; set; }

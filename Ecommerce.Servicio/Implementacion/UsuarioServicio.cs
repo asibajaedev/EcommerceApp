@@ -13,6 +13,7 @@ using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Ecommerce.Utilidades;
 
 
 namespace Ecommerce.Servicio.Implementacion
@@ -33,37 +34,49 @@ namespace Ecommerce.Servicio.Implementacion
         public async Task<SesionDTO> Autorizacion(LoginDTO modelo)
         {
             try 
-            {
-                var consulta = _modeloRepositorio.Consultar(p => p.Correo == modelo.Correo && p.Clave == modelo.Clave);
+            {                
+                var consulta = _modeloRepositorio.Consultar(p => p.Correo == modelo.Correo);
                 var fromDbModelo = await consulta.FirstOrDefaultAsync();
 
                 if (fromDbModelo != null)
                 {
-                    var claims = new[]
+
+                    var salt = fromDbModelo.Salt;
+                    var claveEncriptada = EncriptacionHelper.EncriptarContraseña(modelo.Clave!, fromDbModelo.Salt!);
+
+                    if (fromDbModelo.Clave == claveEncriptada)
                     {
-                        new Claim(ClaimTypes.Name, fromDbModelo.NombreCompleto),
-                        new Claim(ClaimTypes.Role, fromDbModelo.Rol)
-                    };
+                        var claims = new[]
+                        {
+                            new Claim(ClaimTypes.Name, fromDbModelo.NombreCompleto),
+                            new Claim(ClaimTypes.Role, fromDbModelo.Rol)
+                        };
+                        
+                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+                        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                        var token = new JwtSecurityToken(
+                            issuer: _configuration["Jwt:Issuer"],
+                            audience: _configuration["Jwt:Audience"],
+                            claims: claims,
+                            notBefore: DateTime.Now,
+                            expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"])),
+                            signingCredentials: creds
+                        );
 
-                    var token = new JwtSecurityToken(
-                        issuer: _configuration["Jwt:Issuer"],
-                        audience: _configuration["Jwt:Audience"],
-                        claims: claims,
-                        expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"])),
-                        signingCredentials: creds
-                    );
+                        var sesion = _mapper.Map<SesionDTO>(fromDbModelo);
+                        sesion.Token = new JwtSecurityTokenHandler().WriteToken(token);
 
-                    var sesion = _mapper.Map<SesionDTO>(fromDbModelo);
-                    sesion.Token = new JwtSecurityTokenHandler().WriteToken(token);
-
-                    return sesion;
+                        return sesion;
+                    }
+                    else
+                    {
+                        throw new TaskCanceledException("Contraseña incorrecta");
+                    }                    
                 }
                     
                 else
-                    throw new TaskCanceledException("No se encontraron coincidencias");
+                    throw new TaskCanceledException("El correo no se encuentra registrado");
             }
             catch (Exception ex)
             {
@@ -76,7 +89,22 @@ namespace Ecommerce.Servicio.Implementacion
             try
             {
                 var dbModelo = _mapper.Map<Usuario>(modelo);
-                var rspModelo = await _modeloRepositorio.Crear(dbModelo);
+
+                var salt = EncriptacionHelper.GenerarSalt();
+
+                Usuario usuarioDef = new Usuario
+                {
+                    IdUsuario = dbModelo.IdUsuario,
+                    NombreCompleto = dbModelo.NombreCompleto,
+                    Correo = dbModelo.Correo,
+                    Salt = salt,
+                    Clave = EncriptacionHelper.EncriptarContraseña(dbModelo.Clave!, salt!),
+                    Rol = dbModelo.Rol,
+                    FechaCreacion = dbModelo.FechaCreacion
+                };
+
+
+                var rspModelo = await _modeloRepositorio.Crear(usuarioDef);            
 
                 if (rspModelo.IdUsuario != 0)
                     return _mapper.Map<UsuarioDTO>(rspModelo);
