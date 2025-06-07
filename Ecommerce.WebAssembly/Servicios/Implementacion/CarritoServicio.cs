@@ -10,15 +10,18 @@ namespace Ecommerce.WebAssembly.Servicios.Implementacion
         private ILocalStorageService _localStorageService;
         private ISyncLocalStorageService _syncLocalStorageService;
         private IToastService _toastService;
+        private readonly HttpClient _httpClient;
 
         public CarritoServicio(ILocalStorageService localStorageService,
             ISyncLocalStorageService syncLocalStorageService,
-            IToastService toastService
+            IToastService toastService,
+            IHttpClientFactory clientFactory
             )
         {
             _localStorageService = localStorageService;
             _syncLocalStorageService = syncLocalStorageService;
             _toastService = toastService;
+            _httpClient = clientFactory.CreateClient("API");
         }
 
         public event Action MostrarItems;

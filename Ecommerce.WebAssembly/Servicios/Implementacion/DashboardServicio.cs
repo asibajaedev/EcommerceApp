@@ -7,9 +7,9 @@ namespace Ecommerce.WebAssembly.Servicios.Implementacion
     public class DashboardServicio : IDashboardServicio
     {
         private readonly HttpClient _httpClient;
-        public DashboardServicio(HttpClient httpClient)
+        public DashboardServicio(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = clientFactory.CreateClient("API");
         }
 
         public async Task<ResponseDTO<DashboardDTO>> Resumen()

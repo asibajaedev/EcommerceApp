@@ -8,11 +8,11 @@ namespace Ecommerce.WebAssembly.Extensiones
     public class AutenticacionExtension : AuthenticationStateProvider
     {
         private readonly ILocalStorageService _localStorage;
-        private ClaimsPrincipal _sinInformacion = new ClaimsPrincipal(new ClaimsIdentity());
+        private ClaimsPrincipal _sinInformacion = new ClaimsPrincipal(new ClaimsIdentity());        
 
         public AutenticacionExtension(ILocalStorageService localStorage)
         {
-            _localStorage = localStorage;
+            _localStorage = localStorage;            
         }
 
         public async Task ActualizarEstadoAutenticacion(SesionDTO? sesionUsuario)
@@ -29,7 +29,7 @@ namespace Ecommerce.WebAssembly.Extensiones
                     new Claim(ClaimTypes.Role, sesionUsuario.Rol),
                 }, "JwtAuth"));
 
-                await _localStorage.SetItemAsync("sesionUsuario", sesionUsuario);
+                await _localStorage.SetItemAsync("sesionUsuario", sesionUsuario);                
             }
             else
             {

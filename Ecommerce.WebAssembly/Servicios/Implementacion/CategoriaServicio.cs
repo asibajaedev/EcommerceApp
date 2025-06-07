@@ -7,9 +7,9 @@ namespace Ecommerce.WebAssembly.Servicios.Implementacion
     public class CategoriaServicio : ICategoriaServicio
     {
         private readonly HttpClient _httpClient;
-        public CategoriaServicio(HttpClient httpClient)
+        public CategoriaServicio(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = clientFactory.CreateClient("API");
         }
 
         public async Task<ResponseDTO<CategoriaDTO>> Crear(CategoriaDTO modelo)

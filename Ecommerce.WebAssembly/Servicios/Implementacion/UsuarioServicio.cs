@@ -8,9 +8,9 @@ namespace Ecommerce.WebAssembly.Servicios.Implementacion
     public class UsuarioServicio : IUsuarioServicio
     {
         private readonly HttpClient _httpClient;
-        public UsuarioServicio(HttpClient httpClient)
+        public UsuarioServicio(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = clientFactory.CreateClient("API");
         }
 
         public async Task<ResponseDTO<SesionDTO>> Autorizacion(LoginDTO modelo)

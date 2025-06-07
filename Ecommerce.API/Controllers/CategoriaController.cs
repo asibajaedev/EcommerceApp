@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Ecommerce.Servicio.Contrato;
 using Ecommerce.DTO;
 
+using Microsoft.AspNetCore.Authorization;
+
+
 namespace Ecommerce.API.Controllers
 {
     [Route("api/[controller]")]
@@ -17,6 +20,7 @@ namespace Ecommerce.API.Controllers
             _categoriaServicio = categoriaServicio;
         }
 
+        [AllowAnonymous]
         [HttpGet("Lista/{buscar?}")]
         public async Task<IActionResult> Lista(string buscar = "NA")
         {
@@ -38,6 +42,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("Obtener/{id:int}")]
         public async Task<IActionResult> Obtener(int id)
         {
@@ -57,6 +62,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost("Crear")]
         public async Task<IActionResult> Crear([FromBody] CategoriaDTO modelo)
         {
@@ -76,6 +82,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("Editar")]
         public async Task<IActionResult> Editar([FromBody] CategoriaDTO modelo)
         {
@@ -95,6 +102,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpDelete("Eliminar/{id:int}")]
         public async Task<IActionResult> Editar(int id)
         {
