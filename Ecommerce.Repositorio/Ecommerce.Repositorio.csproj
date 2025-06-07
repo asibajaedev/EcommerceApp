@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Ecommerce.Model\Ecommerce.Modelo.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
