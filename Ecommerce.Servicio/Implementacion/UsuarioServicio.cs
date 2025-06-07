@@ -51,8 +51,7 @@ namespace Ecommerce.Servicio.Implementacion
                             new Claim(ClaimTypes.Name, fromDbModelo.NombreCompleto),
                             new Claim(ClaimTypes.Role, fromDbModelo.Rol)
                         };
-
-                        // TODO: Verificar qué sucede a la hora de hacer el token porque aparece como inautorizado
+                        
                         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
                         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
